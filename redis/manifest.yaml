@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: roboshop
+  labels:
+    proj: roboshop
+    app: redis
+    tier: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      proj: roboshop
+      app: redis
+      tier: database
+  template:
+    metadata:
+      labels:
+        proj: roboshop
+        app: redis
+        tier: database
+    spec:
+      containers:
+      - name: redis
+        image: gangadhar3011/redis:v1
+        imagePullPolicy: Always
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 15
+          periodSeconds: 20
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: roboshop
+  labels:
+    proj: roboshop
+    app: redis
+    tier: database
+spec:
+  type: ClusterIP 
+  selector:
+    proj: roboshop
+    app: redis
+    tier: database
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379 
