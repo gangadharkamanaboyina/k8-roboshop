@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: roboshop
+  labels:
+    proj: roboshop
+    app: rabbitmq
+    tier: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      proj: roboshop
+      app: rabbitmq
+      tier: database
+  template:
+    metadata:
+      labels:
+        proj: roboshop
+        app: rabbitmq
+        tier: database
+    spec:
+      containers:
+      - name: rabbitmq
+        image: gangadhar3011/rabbitmq:v1
+        imagePullPolicy: Always
+        readinessProbe:
+          tcpSocket:
+            port: 5672
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 5672
+          initialDelaySeconds: 15
+          periodSeconds: 20
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: roboshop
+  labels:
+    proj: roboshop
+    app: rabbitmq
+    tier: database
+spec:
+  type: ClusterIP 
+  selector:
+    proj: roboshop
+    app: rabbitmq
+    tier: database
+  ports:
+  - protocol: TCP
+    port: 5672
+    targetPort: 5672
